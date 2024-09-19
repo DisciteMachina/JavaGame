@@ -14,13 +14,15 @@ public class GamePanel extends JPanel implements Runnable{
     final int screenWidth = tileSize * maxScreenCol; // 768
     final int screenHeight = tileSize * maxScreenRow; // 576
 
+    double fps = 60; //fps
+
     KeyHandler keyH = new KeyHandler();
     Thread gameThread;
 
     // Character default position
     int playerX = 100;
     int playerY = 100;
-    int playerSpeed = 5;
+    int playerSpeed = 1;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -37,12 +39,31 @@ public class GamePanel extends JPanel implements Runnable{
 
     @Override
     public void run() {
-        while(gameThread != null) {
 
-            // Update character positions
+        double drawInterval = 100000000/fps;
+        double nextDrawTime = System.nanoTime() + drawInterval;
+
+        while(gameThread != null) {
+            // Update character positions and draw the screen with updated information
             update();
-            // Draw the screen with updated information
             repaint(); // paintComponent method
+
+            try {
+                double remainingTime = nextDrawTime - System.nanoTime();
+                remainingTime = remainingTime / 1000000;
+
+                if (remainingTime < 0) {
+                    remainingTime = 0;
+                }
+
+                Thread.sleep((long) remainingTime);
+
+                nextDrawTime += drawInterval;
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -50,16 +71,21 @@ public class GamePanel extends JPanel implements Runnable{
         if (keyH.upPressed) {
             playerY -= playerSpeed;
         }
-        else if (keyH.downPressed) {
+        if (keyH.downPressed) {
             playerY += playerSpeed;
         }
-        else if (keyH.leftPressed) {
+        if (keyH.leftPressed) {
             playerX -= playerSpeed;
         }
-        else if (keyH.rightPressed) {
+        if (keyH.rightPressed) {
             playerX += playerSpeed;
         }
+
+        // Prevent player from moving out of bounds
+        playerX = Math.max(0, Math.min(playerX, screenWidth - tileSize));
+        playerY = Math.max(0, Math.min(playerY, screenHeight - tileSize));
     }
+
 
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
