@@ -5,6 +5,10 @@ import main.KeyHandler;
 
 import java.awt.*;
 
+import javax.imageio.ImageIO;
+import java.io.IOException;
+
+
 public class Player extends Entity{
     GamePanel gp;
     KeyHandler keyH;
@@ -12,13 +16,21 @@ public class Player extends Entity{
     public Player(GamePanel gp, KeyHandler keyH) {
         this.gp = gp;
         this.keyH = keyH;
+
+        setDefaultValues();
     }
 
     public void setDefaultValues () {
         x = 100;
         y = 100;
         speed = 4;
+
+        getPlayerImage();
     }
+
+    public void getPlayerImage() {
+    }
+
 
     public void update() {
         if (keyH.upPressed) {
