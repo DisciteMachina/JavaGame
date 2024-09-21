@@ -22,7 +22,7 @@ public class GamePanel extends JPanel implements Runnable{
     // Character default position
     int playerX = 100;
     int playerY = 100;
-    int playerSpeed = 1;
+    int playerSpeed = 5;
 
     public GamePanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -39,31 +39,34 @@ public class GamePanel extends JPanel implements Runnable{
 
     @Override
     public void run() {
+        double drawInterval = 1000000000/fps;
+        double delta = 0;
+        long lastTime = System.nanoTime();
+        long currentTime;
 
-        double drawInterval = 100000000/fps;
-        double nextDrawTime = System.nanoTime() + drawInterval;
+        long timer = 0;
+        int drawCount = 0;
 
         while(gameThread != null) {
-            // Update character positions and draw the screen with updated information
-            update();
-            repaint(); // paintComponent method
 
-            try {
-                double remainingTime = nextDrawTime - System.nanoTime();
-                remainingTime = remainingTime / 1000000;
+            currentTime = System.nanoTime();
 
-                if (remainingTime < 0) {
-                    remainingTime = 0;
-                }
+            delta += (currentTime - lastTime) / drawInterval;
+            timer += (currentTime - lastTime);
+            lastTime = currentTime;
 
-                Thread.sleep((long) remainingTime);
-
-                nextDrawTime += drawInterval;
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (delta >= 1) {
+                update();
+                repaint();
+                delta --;
+                drawCount ++;
             }
 
+            if (timer >= 1000000000) {
+                System.out.println("FPS:" + drawCount);
+                drawCount = 0;
+                timer = 0;
+            }
         }
     }
 
